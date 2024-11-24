@@ -1,0 +1,64 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct No {
+    int valor;
+    struct No *proximo;
+} No;
+
+No* criar_no(int valor) {
+    No *novo_no = (No*)malloc(sizeof(No));
+    novo_no->valor = valor;
+    novo_no->proximo = NULL;
+    return novo_no;
+}
+void inserir_fim(No **inicio, int valor) {
+    No *novo_no = criar_no(valor);
+    if (*inicio == NULL) {
+        *inicio = novo_no;
+    } else {
+        No *atual = *inicio;
+        while (atual->proximo != NULL) {
+            atual = atual->proximo;
+        }
+        atual->proximo = novo_no;
+    }
+}
+
+No* encontrar_meio(No *inicio) {
+    No *slow = inicio;
+    No *fast = inicio;
+
+    while (fast != NULL && fast->proximo != NULL) {
+        slow = slow->proximo;      // Avança uma célula
+        fast = fast->proximo->proximo; // Avança duas células
+    }
+
+    return slow; // Retorna o nó que está no meio
+}
+void liberar_lista(No *inicio) {
+    No *atual = inicio;
+    while (atual != NULL) {
+        No *temp = atual;
+        atual = atual->proximo;
+        free(temp);
+    }
+}
+int main() {
+    No *lista = NULL;
+    inserir_fim(&lista, 1);
+    inserir_fim(&lista, 2);
+    inserir_fim(&lista, 3);
+    inserir_fim(&lista, 4);
+    inserir_fim(&lista, 5);
+    
+    No *meio = encontrar_meio(lista);
+    if (meio != NULL) {
+        printf("O valor do nó mais próximo do meio da lista é: %d\n", meio->valor);
+    } else {
+        printf("A lista está vazia.\n");
+    }
+
+    liberar_lista(lista);
+    return 0;
+}
