@@ -1,0 +1,103 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct No {
+    char *string;
+    struct No *proximo;
+} No;
+
+typedef struct Lista {
+    No *inicio;
+    int tamanho;
+} Lista;
+
+Lista* criar_lista() {
+    Lista *lista = (Lista*)malloc(sizeof(Lista));
+    lista->inicio = NULL;
+    lista->tamanho = 0;
+    return lista;
+}
+void inserir(Lista *lista, const char *str) {
+    No *novo_no = (No*)malloc(sizeof(No));
+    novo_no->string = strdup(str); // Aloca memória e copia a string
+    novo_no->proximo = lista->inicio;
+    lista->inicio = novo_no;
+    lista->tamanho++;
+}
+int remover(Lista *lista, const char *str) {
+    No *atual = lista->inicio;
+    No *anterior = NULL;
+
+    while (atual != NULL) {
+        if (strcmp(atual->string, str) == 0) {
+            if (anterior == NULL) {
+                lista->inicio = atual->proximo; // Remove o primeiro nó
+            } else {
+                anterior->proximo = atual->proximo; // Remove o nó do meio ou final
+            }
+            free(atual->string);
+            free(atual);
+            lista->tamanho--;
+            return 1; // Remoção bem-sucedida
+        }
+        anterior = atual;
+        atual = atual->proximo;
+    }
+    return 0; // String não encontrada
+}
+int buscar(Lista *lista, const char *str) {
+    No *atual = lista->inicio;
+    while (atual != NULL) {
+        if (strcmp(atual->string, str) == 0) {
+            return 1; // String encontrada
+        }
+        atual = atual->proximo;
+    }
+    return 0; // String não encontrada
+}
+int obter_tamanho(Lista *lista) {
+    return lista->tamanho;
+}
+int perda_memoria(Lista *lista) {
+    int total = 0;
+    No *atual = lista->inicio;
+    while (atual != NULL) {
+        total += strlen(atual->string) + sizeof(No); // Contabiliza tamanho da string e do nó
+        atual = atual->proximo;
+    }
+    return total; // Retorna total de memória utilizada
+}
+void liberar_lista(Lista *lista) {
+    No *atual = lista->inicio;
+    while (atual != NULL) {
+        No *temp = atual;
+        atual = atual->proximo;
+        free(temp->string);
+        free(temp);
+    }
+    free(lista);
+}
+int main() {
+    Lista *minha_lista = criar_lista();
+
+    inserir(minha_lista, "Olá");
+    inserir(minha_lista, "Mundo");
+    inserir(minha_lista, "Teste");
+
+    printf("Tamanho da lista: %d\n", obter_tamanho(minha_lista));
+    printf("Perda de memória: %d bytes\n", perda_memoria(minha_lista));
+
+    if (buscar(minha_lista, "Mundo")) {
+        printf("String 'Mundo' encontrada.\n");
+    } else {
+        printf("String 'Mundo' não encontrada.\n");
+    }
+
+    remover(minha_lista, "Mundo");
+    printf("Após remoção:\n");
+    printf("Tamanho da lista: %d\n", obter_tamanho(minha_lista));
+
+    liberar_lista(minha_lista);
+    return 0;
+}
