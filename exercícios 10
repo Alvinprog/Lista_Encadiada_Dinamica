@@ -1,0 +1,102 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Estrutura para um nó da lista encadeada
+typedef struct No {
+    int valor;
+    struct No *proximo;
+} No;
+
+// Função para criar um novo nó
+No* criar_no(int valor) {
+    No *novo_no = (No*)malloc(sizeof(No));
+    novo_no->valor = valor;
+    novo_no->proximo = NULL;
+    return novo_no;
+}
+
+// Função para inserir um nó no final da lista
+void inserir_fim(No **inicio, int valor) {
+    No *novo_no = criar_no(valor);
+    if (*inicio == NULL) {
+        *inicio = novo_no;
+    } else {
+        No *atual = *inicio;
+        while (atual->proximo != NULL) {
+            atual = atual->proximo;
+        }
+        atual->proximo = novo_no;
+    }
+}
+
+// Função para verificar se duas listas são iguais de forma iterativa
+int listas_iguais_iterativa(No *lista1, No *lista2) {
+    while (lista1 != NULL && lista2 != NULL) {
+        if (lista1->valor != lista2->valor) {
+            return 0; // As listas não são iguais
+        }
+        lista1 = lista1->proximo;
+        lista2 = lista2->proximo;
+    }
+    // Verifica se ambas as listas chegaram ao final
+    return (lista1 == NULL && lista2 == NULL) ? 1 : 0;
+}
+
+// Função para verificar se duas listas são iguais de forma recursiva
+int listas_iguais_recursiva(No *lista1, No *lista2) {
+    // Se ambas as listas estão vazias, são iguais
+    if (lista1 == NULL && lista2 == NULL) {
+        return 1;
+    }
+    // Se uma lista está vazia e a outra não, não são iguais
+    if (lista1 == NULL || lista2 == NULL) {
+        return 0;
+    }
+    // Compara os valores atuais e chama recursivamente para os próximos nós
+    return (lista1->valor == lista2->valor) && listas_iguais_recursiva(lista1->proximo, lista2->proximo);
+}
+
+// Função para liberar a memória da lista
+void liberar_lista(No *inicio) {
+    No *atual = inicio;
+    while (atual != NULL) {
+        No *temp = atual;
+        atual = atual->proximo;
+        free(temp);
+    }
+}
+
+// Função principal
+int main() {
+    No *lista1 = NULL;
+    No *lista2 = NULL;
+
+    // Inserindo valores na lista 1
+    inserir_fim(&lista1, 1);
+    inserir_fim(&lista1, 2);
+    inserir_fim(&lista1, 3);
+
+    // Inserindo valores na lista 2
+    inserir_fim(&lista2, 1);
+    inserir_fim(&lista2, 2);
+    inserir_fim(&lista2, 3);
+
+    // Verificando se as listas são iguais de forma iterativa
+    if (listas_iguais_iterativa(lista1, lista2)) {
+        printf("As listas são iguais (Iterativa).\n");
+    } else {
+        printf("As listas não são iguais (Iterativa).\n");
+    }
+
+    // Verificando se as listas são iguais de forma recursiva
+    if (listas_iguais_recursiva(lista1, lista2)) {
+        printf("As listas são iguais (Recursiva).\n");
+    } else {
+        printf("As listas não são iguais (Recursiva).\n");
+    }
+
+    // Liberar as listas
+    liberar_lista(lista1);
+    liberar_lista(lista2);
+    return 0;
+}
