@@ -1,0 +1,216 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_NOME 100
+#define MAX_TELEFONE 15
+#define MAX_EMAIL 100
+
+typedef struct {
+    char nome[MAX_NOME];
+    char telefone[MAX_TELEFONE];
+    char email[MAX_EMAIL];
+} Contato;
+
+typedef struct No {
+    Contato contato;
+    struct No *proximo;
+} No;
+
+typedef struct {
+    No *inicio;
+    int tamanho;
+} Agenda;
+Agenda* criar_agenda() {
+    Agenda *agenda = (Agenda*)malloc(sizeof(Agenda));
+    agenda->inicio = NULL;
+    agenda->tamanho = 0;
+    return agenda;
+}
+void inserir_contato(Agenda *agenda, Contato contato) {
+    No *novo_no = (No*)malloc(sizeof(No));
+    novo_no->contato = contato;
+    novo_no->proximo = agenda->inicio;
+    agenda->inicio = novo_no;
+    agenda->tamanho++;
+}
+int remover_contato(Agenda *agenda, const char *nome) {
+    No *atual = agenda->inicio;
+    No *anterior = NULL;
+
+    while (atual != NULL) {
+        if (strcmp(atual->contato.nome, nome) == 0) {
+            if (anterior == NULL) {
+                agenda->inicio = atual->proximo; // Remove o primeiro nó
+            } else {
+                anterior->proximo = atual->proximo; // Remove o nó do meio ou final
+            }
+            free(atual);
+            agenda->tamanho--;
+            return 1; // Remoção bem-sucedida
+        }
+        anterior = atual;
+        atual = atual->proximo;
+    }
+    return 0; // Contato não encontrado
+}
+Contato* buscar_contato(Agenda *agenda, const char *nome) {
+    No *atual = agenda->inicio;
+    while (atual != NULL) {
+        if (strcmp(atual->contato.nome, nome) == 0) {
+            return &atual->contato; // Retorna o contato encontrado
+        }
+        atual = atual->proximo;
+    }
+    return NULL; // Contato não encontrado
+}
+void atualizar_nome(Contato *contato, const char *novo_nome) {
+    strncpy(contato->nome, novo_nome, MAX_NOME);
+}
+void atualizar_telefone(Contato *contato, const char *novo_telefone) {
+    strncpy(contato->telefone, novo_telefone, MAX_TELEFONE);
+}
+void atualizar_email(Contato *contato, const char *novo_email) {
+    strncpy(contato->email, novo_email, MAX_EMAIL);
+}
+void exibir_contatos(Agenda *agenda) {
+    No *atual = agenda->inicio;
+    if (atual == NULL) {
+        printf("Nenhum contato na agenda.\n");
+        return;
+    }
+    while (atual != NULL) {
+        printf("Nome: %s, Telefone: %s, Email: %s\n", atual->contato.nome, atual->contato.telefone, atual->contato.email);
+        atual = atual->proximo;
+    }
+}
+void liberar_agenda(Agenda *agenda) {
+    No *atual = agenda->inicio;
+    while (atual != NULL) {
+        No *temp = atual;
+        atual = atual->proximo;
+        free(temp);
+    }
+    free(agenda);
+}
+int main() {
+    ListaContatos *lista = criarListaContatos();
+    int opcao;
+    do {
+        printf("\n--- Agenda de Contatos ---\n");
+        printf("1. Inserir Contato\n");
+        printf("2. Remover Contato\n");
+        printf("3. Buscar Contato\n");
+        printf("4. Atualizar Nome\n");
+        printf("5. Atualizar Telefone\n");
+        printf("6. Atualizar Email\n");
+        printf("7. Mostrar Contatos\n");
+        printf("0. Sair\n");
+        printf("Digite a opção desejada: ");
+        scanf("%d", &opcao);
+
+        switch (opcao) {
+            case 1: {
+                Contato contato;
+                printf("\nDigite o nome do contato: ");
+                scanf(" %[^\n]", contato.nome);
+                printf("Digite o telefone do contato: ");
+                scanf(" %[^\n]", contato.telefone);
+                printf("Digite o email do contato: ");
+                scanf(" %[^\n]", contato.email);
+                inserirContato(lista, contato);
+                printf("Contato inserido com sucesso!\n");
+                break;
+            }
+            case 2: {
+                if (listaVazia(lista)) {
+                    printf("Lista de contatos vazia.\n");
+                    break;
+                }
+                mostrarContatos(lista);
+                int indice;
+                printf("Digite o índice do contato a ser removido: ");
+                scanf("%d", &indice);
+                removerContato(lista, indice - 1);
+                printf("Contato removido com sucesso!\n");
+                break;
+            }
+            case 3: {
+                if (listaVazia(lista)) {
+                    printf("Lista de contatos vazia.\n");
+                    break;
+                }
+                char nome[MAX_NOME];
+                printf("Digite o nome do contato a ser buscado: ");
+                scanf(" %[^\n]", nome);
+                int indice = buscarContato(lista, nome);
+                if (indice == -1) {
+                    printf("Contato não encontrado.\n");
+                } else {
+                    printf("Contato encontrado no índice %d.\n", indice + 1);
+                }
+                break;
+            }
+            case 4: {
+                if (listaVazia(lista)) {
+                    printf("Lista de contatos vazia.\n");
+                    break;
+                }
+                mostrarContatos(lista);
+                int indice;
+                printf("Digite o índice do contato a ser atualizado: ");
+                scanf("%d", &indice);
+                char novoNome[MAX_NOME];
+                printf("Digite o novo nome: ");
+                scanf(" %[^\n]", novoNome);
+                atualizarNome(lista, indice - 1, novoNome);
+                printf("Nome atualizado com sucesso!\n");
+                break;
+            }
+            case 5: {
+                if (listaVazia(lista)) {
+                    printf("Lista de contatos vazia.\n");
+                    break;
+                }
+                mostrarContatos(lista);
+                int indice;
+                printf("Digite o índice do contato a ser atualizado: ");
+                scanf("%d", &indice);
+                char novoTelefone[MAX_TELEFONE];
+                printf("Digite o novo telefone: ");
+                scanf(" %[^\n]", novoTelefone);
+                atualizarTelefone(lista, indice - 1, novoTelefone);
+                printf("Telefone atualizado com sucesso!\n");
+                break;
+            }
+            case 6: {
+                if (listaVazia(lista)) {
+                    printf("Lista de contatos vazia.\n");
+                    break;
+                }
+                mostrarContatos(lista);
+                int indice;
+                printf("Digite o índice do contato a ser atualizado: ");
+                scanf("%d", &indice);
+                char novoEmail[MAX_EMAIL];
+                printf("Digite o novo email: ");
+                scanf(" %[^\n]", novoEmail);
+                atualizarEmail(lista, indice - 1, novoEmail);
+                printf("Email atualizado com sucesso!\n");
+                break;
+            }
+            case 7: {
+                mostrarContatos(lista);
+                break;
+            }
+            case 0:
+                printf("Saindo da agenda...\n");
+                break;
+            default:
+                printf("Opção inválida.\n");
+        }
+    } while (opcao != 0);
+
+    liberarListaContatos(lista);
+    return 0;
+}
