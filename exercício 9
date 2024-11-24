@@ -1,0 +1,83 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+typedef struct No {
+    int valor;
+    struct No *proximo;
+} No;
+
+No* criar_no(int valor) {
+    No *novo_no = (No*)malloc(sizeof(No));
+    novo_no->valor = valor;
+    novo_no->proximo = NULL;
+    return novo_no;
+}
+
+void inserir_fim(No **inicio, int valor) {
+    No *novo_no = criar_no(valor);
+    if (*inicio == NULL) {
+        *inicio = novo_no;
+    } else {
+        No *atual = *inicio;
+        while (atual->proximo != NULL) {
+            atual = atual->proximo;
+        }
+        atual->proximo = novo_no;
+    }
+}
+
+int encontrar_minimo_iterativo(No *inicio) {
+    if (inicio == NULL) {
+        return INT_MAX; // Retorna um valor máximo se a lista estiver vazia
+    }
+
+    int minimo = inicio->valor;
+    No *atual = inicio->proximo;
+
+    while (atual != NULL) {
+        if (atual->valor < minimo) {
+            minimo = atual->valor;
+        }
+        atual = atual->proximo;
+    }
+    return minimo;
+}
+
+int encontrar_minimo_recursivo(No *inicio) {
+    if (inicio == NULL) {
+        return INT_MAX; // Retorna um valor máximo se a lista estiver vazia
+    }
+
+    int minimo_restante = encontrar_minimo_recursivo(inicio->proximo);
+    return (inicio->valor < minimo_restante) ? inicio->valor : minimo_restante;
+}
+
+void liberar_lista(No *inicio) {
+    No *atual = inicio;
+    while (atual != NULL) {
+        No *temp = atual;
+        atual = atual->proximo;
+        free(temp);
+    }
+}
+
+int main() {
+    No *lista = NULL;
+
+    // Inserindo valores na lista
+    inserir_fim(&lista, 5);
+    inserir_fim(&lista, 3);
+    inserir_fim(&lista, 8);
+    inserir_fim(&lista, 1);
+    inserir_fim(&lista, 7);
+    
+    int minimo_iterativo = encontrar_minimo_iterativo(lista);
+    printf("Mínimo (Iterativo): %d\n", minimo_iterativo);
+
+    int minimo_recursivo = encontrar_minimo_recursivo(lista);
+    printf("Mínimo (Recursivo): %d\n", minimo_recursivo);
+
+    liberar_lista(lista);
+    return 0;
+}
