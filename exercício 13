@@ -1,0 +1,53 @@
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct No {
+    int valor;
+    struct No *esquerda;
+    struct No *direita;
+} No;
+No* criar_no(int valor) {
+    No *novo_no = (No*)malloc(sizeof(No));
+    novo_no->valor = valor;
+    novo_no->esquerda = NULL;
+    novo_no->direita = NULL;
+    return novo_no;
+}
+void espelhar_arvore(No *raiz) {
+    if (raiz == NULL) {
+        return;
+    }
+    No *temp = raiz->esquerda;
+    raiz->esquerda = raiz->direita;
+    raiz->direita = temp;
+
+    espelhar_arvore(raiz->esquerda);
+    espelhar_arvore(raiz->direita);
+}
+void imprimir_arvore(No *raiz) {
+    if (raiz != NULL) {
+        imprimir_arvore(raiz->esquerda);
+        printf("%d ", raiz->valor);
+        imprimir_arvore(raiz->direita);
+    }
+}
+int main() {
+    No *raiz = criar_no(1);
+    raiz->esquerda = criar_no(2);
+    raiz->direita = criar_no(3);
+    raiz->esquerda->esquerda = criar_no(4);
+    raiz->esquerda->direita = criar_no(5);
+    raiz->direita->esquerda = criar_no(6);
+    raiz->direita->direita = criar_no(7);
+
+    printf("Árvore original em ordem: ");
+    imprimir_arvore(raiz);
+    printf("\n");
+
+    espelhar_arvore(raiz);
+
+    printf("Árvore espelhada em ordem: ");
+    imprimir_arvore(raiz);
+    printf("\n");
+
+    return 0;
+}
