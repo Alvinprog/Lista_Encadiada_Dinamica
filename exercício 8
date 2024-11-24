@@ -1,0 +1,85 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Estrutura para um nó da lista encadeada
+typedef struct No {
+    int valor;
+    struct No *proximo;
+} No;
+No* criar_no(int valor) {
+    No *novo_no = (No*)malloc(sizeof(No));
+    novo_no->valor = valor;
+    novo_no->proximo = NULL;
+    return novo_no;
+}
+void inserir_ordem(No **inicio, int valor) {
+    No *novo_no = criar_no(valor);
+    if (*inicio == NULL || (*inicio)->valor > valor) {
+        novo_no->proximo = *inicio;
+        *inicio = novo_no;
+    } else {
+        No *atual = *inicio;
+        while (atual->proximo != NULL && atual->proximo->valor < valor) {
+            atual = atual->proximo;
+        }
+        novo_no->proximo = atual->proximo;
+        atual->proximo = novo_no;
+    }
+}
+No* busca_iterativa(No *inicio, int valor) {
+    No *atual = inicio;
+    while (atual != NULL) {
+        if (atual->valor == valor) {
+            return atual; // Retorna o nó encontrado
+        }
+        if (atual->valor > valor) {
+            return NULL; // Como a lista está ordenada, podemos parar a busca
+        }
+        atual = atual->proximo;
+    }
+    return NULL; // Valor não encontrado
+}
+No* busca_recursiva(No *inicio, int valor) {
+    if (inicio == NULL || inicio->valor > valor) {
+        return NULL; // Valor não encontrado ou lista vazia
+    }
+    if (inicio->valor == valor) {
+        return inicio; // Retorna o nó encontrado
+    }
+    return busca_recursiva(inicio->proximo, valor); // Chama a função para o próximo nó
+}
+void liberar_lista(No *inicio) {
+    No *atual = inicio;
+    while (atual != NULL) {
+        No *temp = atual;
+        atual = atual->proximo;
+        free(temp);
+    }
+}
+int main() {
+    No *lista = NULL;
+
+    // Inserindo valores na lista
+    inserir_ordem(&lista, 5);
+    inserir_ordem(&lista, 3);
+    inserir_ordem(&lista, 8);
+    inserir_ordem(&lista, 1);
+    inserir_ordem(&lista, 7);
+    
+    int valor_busca = 8;
+    No *resultado_iterativo = busca_iterativa(lista, valor_busca);
+    if (resultado_iterativo) {
+        printf("Busca Iterativa: Valor %d encontrado.\n", resultado_iterativo->valor);
+    } else {
+        printf("Busca Iterativa: Valor %d não encontrado.\n", valor_busca);
+    }
+    
+    No *resultado_recursivo = busca_recursiva(lista, valor_busca);
+    if (resultado_recursivo) {
+        printf("Busca Recursiva: Valor %d encontrado.\n", resultado_recursivo->valor);
+    } else {
+        printf("Busca Recursiva: Valor %d não encontrado.\n", valor_busca);
+    }
+    liberar_lista(lista);
+    return 0;
+}
