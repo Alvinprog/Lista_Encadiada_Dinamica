@@ -1,0 +1,390 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_NOME 50
+#define MAX_TELEFONE 20
+#define MAX_EMAIL 100
+
+typedef struct Contato {
+    char nome[MAX_NOME];
+    char telefone[MAX_TELEFONE];
+    char email[MAX_EMAIL];
+    struct Contato *proximo;
+} Contato;
+
+Contato* criarContato(char nome[], char telefone[], char email[]) {
+    Contato *novo = (Contato*) malloc(sizeof(Contato));
+    if (novo == NULL) {
+        printf("Erro ao alocar memória!\n");
+        exit(1);
+    }
+    strcpy(novo->nome, nome);
+    strcpy(novo->telefone, telefone);
+    strcpy(novo->email, email);
+    novo->proximo = NULL;
+    return novo;
+}
+Contato* inserirContato(Contato *inicio, Contato *novo) {
+    novo->proximo = inicio;
+    return novo;
+}
+Contato* removerContato(Contato *inicio, char nome[]) {
+    Contato *anterior = NULL, *atual = inicio;
+    while (atual != NULL && strcmp(atual->nome, nome) != 0) {
+        anterior = atual;
+        atual = atual->proximo;
+    }
+    if (atual == NULL) {
+        printf("Contato não encontrado.\n");
+        return inicio;
+    }
+    if (anterior == NULL) { // Primeiro contato
+        inicio = atual->proximo;
+    } else {
+        anterior->proximo = atual->proximo;
+    }
+    free(atual);
+    return inicio;
+}
+Contato* buscarContato(Contato *inicio, char nome[]) {
+    Contato *atual = inicio;
+    while (atual != NULL && strcmp(atual->nome, nome) != 0) {
+        atual = atual->proximo;
+    }
+    return atual;
+}
+int listaVazia(Contato *inicio) {
+    return inicio == NULL;
+}
+void imprimirContatos(Contato *inicio) {
+    Contato *atual = inicio;
+    while (atual != NULL) {
+        printf("Nome: %s\n", atual->nome);
+        printf("Telefone: %s\n", atual->telefone);
+        printf("Email: %s\n\n", atual->email);
+        atual = atual->proximo;
+    }
+}
+void atualizarNome(Contato *contato, char novoNome[]) {
+    strcpy(contato->nome, novoNome);
+}
+void atualizarTelefone(Contato *contato, char novoTelefone[]) {
+    strcpy(contato->telefone, novoTelefone);
+}
+void atualizarEmail(Contato *contato, char novoEmail[]) {
+    strcpy(contato->email, novoEmail);
+}
+int main() {
+    Contato *inicio = NULL; 
+    int opcao;
+    do {
+        printf("\nMenu:\n");
+        printf("1. Inserir Contato\n");
+        printf("2. Remover Contato\n");
+        printf("3. Buscar Contato\n");
+        printf("4. Imprimir Contatos\n");
+        printf("5. Atualizar Nome\n");
+        printf("6. Atualizar Telefone\n");
+        printf("7. Atualizar Email\n");
+        printf("0. Sair\n");
+        printf("Digite a opção desejada: ");
+        scanf("%d", &opcao);
+
+        switch (opcao) {
+            case 1: {
+                char nome[MAX_NOME], telefone[MAX_TELEFONE], email[MAX_EMAIL];
+                printf("Digite o nome: ");
+                scanf(" %[^\n]", nome);
+                printf("Digite o telefone: ");
+                scanf(" %[^\n]", telefone);
+                printf("Digite o email: ");
+                scanf(" %[^\n]", email);
+                inicio = inserirContato(inicio, criarContato(nome, telefone, email));
+                break;
+            }
+            case 2: {
+                char nome[MAX_NOME];
+                printf("Digite o nome do contato a ser removido: ");
+                scanf(" %[^\n]", nome);
+                inicio = removerContato(inicio, nome);
+                break;
+            }
+            case 3: {
+                char nome[MAX_NOME];
+                printf("Digite o nome do contato a ser buscado: ");
+                scanf(" %[^\n]", nome);
+                Contato *contato = buscarContato(inicio, nome);
+                if (contato != NULL) {
+                    printf("Nome: %s\n", contato->nome);
+                    printf("Telefone: %s\n", contato->telefone);
+                    printf("Email: %s\n", contato->email);
+                } else {
+                    printf("Contato não encontrado.\n");
+                }
+                break;
+            }
+            case 4: {
+                imprimirContatos(inicio);
+                break;
+            }
+            case 5: {
+                char nome[MAX_NOME], novoNome[MAX_NOME];
+                printf("Digite o nome do contato a ser atualizado: ");
+                scanf(" %[^\n]", nome);
+                Contato *contato = buscarContato(inicio, nome);
+                if (contato != NULL) {
+                    printf("Digite o novo nome: ");
+                    scanf(" %[^\n]", novoNome);
+                    atualizarNome(contato, novoNome);
+                } else {
+                    printf("Contato não encontrado.\n");
+                }
+                break;
+            }
+            case 6: {
+                char nome[MAX_NOME], novoTelefone[MAX_TELEFONE];
+                printf("Digite o nome do contato a ser atualizado: ");
+                scanf(" %[^\n]", nome);
+                Contato *contato = buscarContato(inicio, nome);
+                if (contato != NULL) {
+                    printf("Digite o novo telefone: ");
+                    scanf(" %[^\n]", novoTelefone);
+                    atualizarTelefone(contato, novoTelefone);
+                } else {
+                    printf("Contato não encontrado.\n");
+                }
+                break;
+            }
+            case 7: {
+                char nome[MAX_NOME], novoEmail[MAX_EMAIL];
+                printf("Digite o nome do contato a ser atualizado: ");
+                scanf(" %[^\n]", nome);
+                Contato *contato = buscarContato(inicio, nome);
+                if (contato != NULL) {
+                    printf("Digite o novo email: ");
+                    scanf(" %[^\n]", novoEmail);
+                    atualizarEmail(contato, novoEmail);
+                } else {
+                    printf("Contato não encontrado.\n");
+                }
+                break;
+            }
+            case 0:
+                printf("Saindo...\n");
+                break;
+            default:
+                printf("Opção inválida!\n");
+        }
+    } while (opcao != 0);
+    while (inicio != NULL) {
+        Contato *proximo = inicio->proximo;
+        free(inicio);
+        inicio = proximo;
+    }
+
+    return 0;
+}
+typedef struct Palavra {
+    char palavra[MAX_NOME];
+    int frequencia;
+} Palavra;
+int contarPalavras(char texto[]) {
+    int numPalavras = 0;
+    int dentroPalavra = 0;
+    for (int i = 0; texto[i] != '\0'; i++) {
+        if (texto[i] != ' ' && texto[i] != '\n' && texto[i] != '\t') {
+            if (!dentroPalavra) {
+                numPalavras++;
+                dentroPalavra = 1;
+            }
+        } else {
+            dentroPalavra = 0;
+        }
+    }
+    return numPalavras;
+}
+int contarPalavrasDistintas(char texto[]) {
+    int numPalavrasDistintas = 0;
+    Palavra palavras[MAX_NOME]; // Array para armazenar palavras
+    int j = 0; // Índice do array palavras
+    int dentroPalavra = 0;
+    for (int i = 0; texto[i] != '\0'; i++) {
+        if (texto[i] != ' ' && texto[i] != '\n' && texto[i] != '\t') {
+            if (!dentroPalavra) {
+                palavras[j].frequencia = 1; // Nova palavra, frequencia 1
+                strcpy(palavras[j].palavra, "");
+                j++;
+                dentroPalavra = 1;
+            }
+            strncat(palavras[j - 1].palavra, &texto[i], 1); // Adiciona caractere à palavra
+        } else {
+            dentroPalavra = 0;
+        }
+    }
+    for (int i = 0; i < j; i++) {
+        for (int k = i + 1; k < j; k++) {
+            if (strcmp(palavras[i].palavra, palavras[k].palavra) == 0) {
+                palavras[i].frequencia++;
+                palavras[k].frequencia = -1; // Sinalizar para não contar duas vezes
+            }
+        }
+    }
+    for (int i = 0; i < j; i++) {
+        if (palavras[i].frequencia > 0) {
+            numPalavrasDistintas++;
+        }
+    }
+    return numPalavrasDistintas;
+}
+float mediaLetras(char texto[]) {
+    int numLetras = 0;
+    int numPalavras = contarPalavras(texto);
+    for (int i = 0; texto[i] != '\0'; i++) {
+        if (texto[i] != ' ' && texto[i] != '\n' && texto[i] != '\t') {
+            numLetras++;
+        }
+    }
+    if (numPalavras > 0) {
+        return (float) numLetras / numPalavras;
+    } else {
+        return 0; // Retorna 0 se não houver palavras
+    }
+}
+char* maiorPalavra(char texto[]) {
+    char *maior = malloc(MAX_NOME * sizeof(char));
+    if (maior == NULL) {
+        printf("Erro ao alocar memória!\n");
+        exit(1);
+    }
+    strcpy(maior, "");
+    int dentroPalavra = 0;
+    char palavraAtual[MAX_NOME] = "";
+    for (int i = 0; texto[i] != '\0'; i++) {
+        if (texto[i] != ' ' && texto[i] != '\n' && texto[i] != '\t') {
+            if (!dentroPalavra) {
+                strcpy(palavraAtual, ""); // Inicia uma nova palavra
+                dentroPalavra = 1;
+            }
+            strncat(palavraAtual, &texto[i], 1);
+        } else {
+            dentroPalavra = 0;
+            if (strlen(palavraAtual) > strlen(maior)) {
+                strcpy(maior, palavraAtual);
+            }
+        }
+    }
+    if (strlen(palavraAtual) > strlen(maior)) {
+        strcpy(maior, palavraAtual);
+    }
+    return maior;
+}
+char* menorPalavra(char texto[]) {
+    char *menor = malloc(MAX_NOME * sizeof(char));
+    if (menor == NULL) {
+        printf("Erro ao alocar memória!\n");
+        exit(1);
+    }
+    strcpy(menor, "");
+    int dentroPalavra = 0;
+    char palavraAtual[MAX_NOME] = "";
+    for (int i = 0; texto[i] != '\0'; i++) {
+        if (texto[i] != ' ' && texto[i] != '\n' && texto[i] != '\t') {
+            if (!dentroPalavra) {
+                strcpy(palavraAtual, ""); // Inicia uma nova palavra
+                dentroPalavra = 1;
+            }
+            strncat(palavraAtual, &texto[i], 1);
+        } else {
+            dentroPalavra = 0;
+            if (strlen(palavraAtual) > 0 && (strlen(menor) == 0 || strlen(palavraAtual) < strlen(menor))) {
+                strcpy(menor, palavraAtual);
+            }
+        }
+    }
+    if (strlen(palavraAtual) > 0 && (strlen(menor) == 0 || strlen(palavraAtual) < strlen(menor))) {
+        strcpy(menor, palavraAtual);
+    }
+    return menor;
+}
+char* palavraMaisFrequente(char texto[]) {
+    Palavra palavras[MAX_NOME];
+    int j = 0;
+    int dentroPalavra = 0;
+    for (int i = 0; texto[i] != '\0'; i++) {
+        if (texto[i] != ' ' && texto[i] != '\n' && texto[i] != '\t') {
+            if (!dentroPalavra) {
+                palavras[j].frequencia = 1;
+                strcpy(palavras[j].palavra, "");
+                j++;
+                dentroPalavra = 1;
+            }
+            strncat(palavras[j - 1].palavra, &texto[i], 1);
+        } else {
+            dentroPalavra = 0;
+        }
+    }
+    for (int i = 0; i < j; i++) {
+        for (int k = i + 1; k < j; k++) {
+            if (strcmp(palavras[i].palavra, palavras[k].palavra) == 0) {
+                palavras[i].frequencia++;
+                palavras[k].frequencia = -1; // Sinalizar para não contar duas vezes
+            }
+        }
+    }
+    int indiceMaisFrequente = 0;
+    for (int i = 1; i < j; i++) {
+        if (palavras[i].frequencia > palavras[indiceMaisFrequente].frequencia) {
+            indiceMaisFrequente = i;
+        }
+    }
+    return palavras[indiceMaisFrequente].palavra;
+}
+char* palavraMaisRara(char texto[]) {
+    Palavra palavras[MAX_NOME];
+    int j = 0;
+    int dentroPalavra = 0;
+    for (int i = 0; texto[i] != '\0'; i++) {
+        if (texto[i] != ' ' && texto[i] != '\n' && texto[i] != '\t') {
+            if (!dentroPalavra) {
+                palavras[j].frequencia = 1;
+                strcpy(palavras[j].palavra, "");
+                j++;
+                dentroPalavra = 1;
+            }
+            strncat(palavras[j - 1].palavra, &texto[i], 1);
+        } else {
+            dentroPalavra = 0;
+        }
+    }
+    for (int i = 0; i < j; i++) {
+        for (int k = i + 1; k < j; k++) {
+            if (strcmp(palavras[i].palavra, palavras[k].palavra) == 0) {
+                palavras[i].frequencia++;
+                palavras[k].frequencia = -1; // Sinalizar para não contar duas vezes
+            }
+        }
+    }
+    int indiceMaisRara = 0;
+    for (int i = 1; i < j; i++) {
+        if (palavras[i].frequencia > 0 && palavras[i].frequencia < palavras[indiceMaisRara].frequencia) {
+            indiceMaisRara = i;
+        }
+    }
+    return palavras[indiceMaisRara].palavra;
+}
+int main() {
+    char texto[1000];
+    printf("Digite o texto: ");
+    fgets(texto, 1000, stdin);
+
+    printf("Número de palavras: %d\n", contarPalavras(texto));
+    printf("Número de palavras distintas: %d\n", contarPalavrasDistintas(texto));
+    printf("Média de letras por palavra: %.2f\n", mediaLetras(texto));
+    printf("Maior palavra: %s\n", maiorPalavra(texto));
+    printf("Menor palavra: %s\n", menorPalavra(texto));
+    printf("Palavra mais frequente: %s\n", palavraMaisFrequente(texto));
+    printf("Palavra mais rara: %s\n", palavraMaisRara(texto));
+
+    return 0;
+}
