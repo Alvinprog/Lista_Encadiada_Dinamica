@@ -1,0 +1,55 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Estrutura para um nó da lista encadeada
+typedef struct No {
+    int valor;
+    struct No *proximo;
+} No;
+
+No* criar_no(int valor) {
+    No *novo_no = (No*)malloc(sizeof(No));
+    novo_no->valor = valor;
+    novo_no->proximo = NULL;
+    return novo_no;
+}
+
+int esta_em_ordem_crescente(No *inicio) {
+    No *atual = inicio;
+
+    while (atual != NULL && atual->proximo != NULL) {
+        if (atual->valor >= atual->proximo->valor) {
+            return 0; // Não está em ordem crescente
+        }
+        atual = atual->proximo;
+    }
+    return 1; // Está em ordem crescente
+}
+
+void liberar_lista(No *inicio) {
+    No *atual = inicio;
+    while (atual != NULL) {
+        No *temp = atual;
+        atual = atual->proximo;
+        free(temp);
+    }
+}
+
+int main() {
+    // Criando uma lista encadeada para teste
+    No *lista = criar_no(1);
+    lista->proximo = criar_no(2);
+    lista->proximo->proximo = criar_no(3);
+    lista->proximo->proximo->proximo = criar_no(4);
+
+    // Verificando se a lista está em ordem crescente
+    if (esta_em_ordem_crescente(lista)) {
+        printf("A lista está em ordem crescente.\n");
+    } else {
+        printf("A lista não está em ordem crescente.\n");
+    }
+
+    // Liberar a lista
+    liberar_lista(lista);
+    return 0;
+}
